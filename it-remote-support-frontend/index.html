@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Interface de gestion IT Remote Support">
+  <title>IT Remote Support</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-mark">IT</div>
+        <div><strong>Remote Support</strong><span>IT Operations Center</span></div>
+      </div>
+      <div class="nav-label">ESPACE DE TRAVAIL</div>
+      <nav class="nav">
+        <button class="nav-link active" data-page="dashboard"><span class="nav-icon">▦</span> Tableau de bord</button>
+        <button class="nav-link" data-page="agents"><span class="nav-icon">▣</span> Ordinateurs <span class="nav-count"
+            id="navAgentCount">0</span></button>
+        <button class="nav-link" data-page="interventions"><span class="nav-icon">⌁</span> Interventions</button>
+        <button class="nav-link" data-page="history"><span class="nav-icon">◷</span> Historique</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="connection-card">
+          <span class="connection-dot"></span>
+          <div><strong>Serveur API</strong><small id="apiStatus">Vérification...</small></div>
+        </div>
+        <div class="sidebar-foot">IT Remote Support <span>v1.0.0</span></div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="mobile-menu" id="mobileMenu" aria-label="Ouvrir le menu">☰</button>
+        <div class="breadcrumb">Workspace <span>/</span> <strong id="breadcrumbTitle">Tableau de bord</strong></div>
+        <div class="top-actions">
+          <span class="live-indicator"><i></i> Système de supervision</span>
+          <div class="avatar">SI</div>
+        </div>
+      </header>
+
+      <section class="page active" id="page-dashboard">
+        <div class="page-heading">
+          <div>
+            <p class="eyebrow">VUE D'ENSEMBLE</p>
+            <h1>Tableau de bord</h1>
+            <p class="subtitle">Surveillez vos ordinateurs et gérez les interventions informatiques.</p>
+          </div>
+          <button class="btn btn-primary" id="refreshDashboard">↻ Actualiser les données</button>
+        </div>
+        <div class="stats-grid">
+          <article class="stat-card">
+            <div class="stat-top"><span>Total ordinateurs</span><span class="stat-icon blue">▣</span></div><strong
+              id="totalAgents">—</strong><small>Agents enregistrés</small>
+          </article>
+          <article class="stat-card">
+            <div class="stat-top"><span>En ligne</span><span class="stat-icon green">●</span></div><strong
+              id="onlineAgents">—</strong><small class="positive">Disponibles pour intervention</small>
+          </article>
+          <article class="stat-card">
+            <div class="stat-top"><span>Hors ligne</span><span class="stat-icon red">◌</span></div><strong
+              id="offlineAgents">—</strong><small>Agents non joignables</small>
+          </article>
+          <article class="stat-card">
+            <div class="stat-top"><span>Tâches envoyées</span><span class="stat-icon violet">⌁</span></div><strong
+              id="sentTasks">0</strong><small>Depuis cette session</small>
+          </article>
+        </div>
+        <div class="content-grid">
+          <section class="panel">
+            <div class="panel-heading">
+              <div>
+                <h2>Ordinateurs récemment détectés</h2>
+                <p>État actuel des agents enregistrés</p>
+              </div><button class="text-button" data-go="agents">Voir tous →</button>
+            </div>
+            <div class="table-wrap dashboard-table-scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th>ORDINATEUR</th>
+                    <th>ADRESSE IP</th>
+                    <th>STATUT</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="dashboardAgents">
+                  <tr>
+                    <td colspan="4" class="empty">
+                      Chargement des ordinateurs...
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+          <section class="panel api-panel">
+            <div class="panel-heading">
+              <div>
+                <h2>État du système</h2>
+                <p>Connexion au backend</p>
+              </div><span class="status-pill neutral" id="serverBadge">Vérification</span>
+            </div>
+            <div class="api-detail"><span class="api-symbol">⌘</span>
+              <div><strong>API Spring Boot</strong><small id="apiUrlLabel">http://localhost:8080</small></div>
+            </div>
+            <div class="api-line"><span>Endpoint agents</span><strong>GET /api/agents</strong></div>
+            <div class="api-line"><span>Création de tâche</span><strong>POST /api/tasks</strong></div>
+            <div class="api-note">Les agents envoient leurs propres heartbeats et résultats. Le frontend ne les simule
+              pas.</div>
+          </section>
+        </div>
+      </section>
+
+      <section class="page" id="page-agents">
+        <div class="page-heading">
+          <div>
+            <p class="eyebrow">PARC INFORMATIQUE</p>
+            <h1>Ordinateurs</h1>
+            <p class="subtitle">Consultez les agents et leur disponibilité pour une intervention.</p>
+          </div>
+          <button class="btn btn-secondary" id="refreshAgents">↻ Actualiser</button>
+        </div>
+        <section class="panel">
+          <div class="toolbar">
+            <div class="search-box"><span>⌕</span><input id="agentSearch" type="search"
+                placeholder="Rechercher un PC, un agent ou une IP..."></div><select id="statusFilter">
+              <option value="ALL">Tous les statuts</option>
+              <option value="ONLINE">En ligne</option>
+              <option value="OFFLINE">Hors ligne</option>
+            </select>
+          </div>
+          <div class="table-wrap agents-table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>ORDINATEUR</th>
+                  <th>IDENTIFIANT AGENT</th>
+                  <th>ADRESSE IP</th>
+                  <th>SYSTÈME</th>
+                  <th>STATUT</th>
+                  <th>DERNIÈRE CONNEXION</th>
+                  <th>ACTION</th>
+                </tr>
+              </thead>
+              <tbody id="agentsTable">
+                <tr>
+                  <td colspan="7" class="empty">Chargement...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="table-footer" id="agentsCount">0 ordinateur</div>
+        </section>
+      </section>
+
+      <section class="page" id="page-interventions">
+        <div class="page-heading">
+          <div>
+            <p class="eyebrow">ASSISTANCE À DISTANCE</p>
+            <h1>Nouvelle intervention</h1>
+            <p class="subtitle">Envoyez une tâche autorisée à un agent connecté.</p>
+          </div>
+        </div>
+        <div class="intervention-layout">
+          <section class="panel form-panel">
+            <div class="panel-heading">
+              <div>
+                <h2>Configuration de la tâche</h2>
+                <p>Les champs dépendent du type d'intervention.</p>
+              </div>
+            </div>
+            <form id="taskForm">
+              <label>Ordinateur cible <select id="targetAgent" required>
+                  <option value="">Sélectionner un ordinateur en ligne</option>
+                </select></label>
+              <label>Type d'intervention
+                <select id="taskType" required>
+                  <option value="GET_SYSTEM_INFO">Informations système</option>
+                  <option value="PING_PRINTER">Tester la connexion imprimante</option>
+                  <option value="CHECK_PRINTER_PORT">Vérifier un port imprimante</option>
+                  <option value="RESTART_PRINT_SPOOLER">Redémarrer le service d'impression</option>
+                  <option value="TEST_PRINT">Test d'impression</option>
+                  <option value="INSTALL_DEFAULT_PRINTER">Ajouter une imprimante réseau</option>
+                </select>
+              </label>
+              <div id="taskFields"></div>
+              <div class="form-warning"><strong>À savoir</strong><span>La tâche est seulement mise en file d'attente par
+                  le serveur. Son envoi ne signifie pas qu'elle a été exécutée avec succès.</span></div>
+              <button class="btn btn-primary btn-wide" type="submit" id="submitTask">Envoyer l'intervention
+                <span>→</span></button>
+            </form>
+          </section>
+          <aside class="panel help-panel">
+            <div class="help-icon">ⓘ</div>
+            <h2>Avant d'intervenir</h2>
+            <ul>
+              <li>Vérifiez que l'ordinateur est <b>ONLINE</b>.</li>
+              <li>Confirmez l'adresse IP de l'imprimante.</li>
+              <li>Pour ajouter une imprimante, un pilote Brother compatible doit déjà être installé sur le PC.</li>
+              <li>L'agent doit être actif sur le poste cible.</li>
+            </ul>
+          </aside>
+        </div>
+        <section class="panel result-panel" id="taskResult" hidden></section>
+      </section>
+
+
+
+      <section class="page" id="page-history">
+        <div class="page-heading">
+          <div>
+            <p class="eyebrow">SUIVI</p>
+            <h1>Historique des interventions</h1>
+            <p class="subtitle">
+              Consultez toutes les interventions effectuées
+              et leur état d'exécution.
+            </p>
+          </div>
+
+          <button class="btn btn-secondary" id="refreshHistory">
+            ↻ Actualiser
+          </button>
+        </div>
+
+        <section class="panel">
+
+          <div class="toolbar">
+            <div class="search-box">
+              <span>⌕</span>
+              <input type="search" id="historySearch" placeholder="Rechercher par agent ou type...">
+            </div>
+
+            <select id="historyStatusFilter">
+              <option value="">Tous les statuts</option>
+              <option value="PENDING">En attente</option>
+              <option value="IN_PROGRESS">En cours</option>
+              <option value="SUCCESS">Réussie</option>
+              <option value="FAILED">Échec</option>
+            </select>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>AGENT</th>
+                  <th>TYPE</th>
+                  <th>STATUT</th>
+                  <th>DATE DE CRÉATION</th>
+                  <th>DATE DE MODIFICATION</th>
+                  <th>RÉSULTAT</th>
+                </tr>
+              </thead>
+
+              <tbody id="historyTable">
+                <tr>
+                  <td colspan="7" class="empty">
+                    Chargement de l'historique...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="table-footer" style="display:flex; justify-content:space-between; align-items:center;">
+            <span id="historyCount">0 intervention(s)</span>
+
+            <div style="display:flex; gap:10px; align-items:center;">
+              <button class="btn btn-secondary" id="historyPrevious">
+                ← Précédent
+              </button>
+
+              <span id="historyPage">Page 1</span>
+
+              <button class="btn btn-secondary" id="historyNext">
+                Suivant →
+              </button>
+            </div>
+          </div>
+
+        </section>
+      </section>
+
+      <footer class="footer">© 2026 IT Remote Support <span>Interface de supervision informatique</span></footer>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status"></div>
+  <script src="app.js"></script>
+</body>
+
+</html>
