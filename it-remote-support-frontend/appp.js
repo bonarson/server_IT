@@ -308,18 +308,18 @@ function renderAgents() {
 
             <td>
                 ${escapeHtml(
-                    agent.computerName ||
-                    agent.hostname ||
-                    "—"
-                )}
+        agent.computerName ||
+        agent.hostname ||
+        "—"
+    )}
             </td>
 
             <td>
                 ${escapeHtml(
-                    agent.ipAddress ||
-                    agent.ip ||
-                    "—"
-                )}
+        agent.ipAddress ||
+        agent.ip ||
+        "—"
+    )}
             </td>
 
             <td>
@@ -328,9 +328,9 @@ function renderAgents() {
 
             <td>
                 ${formatDate(
-                    agent.lastHeartbeat ||
-                    agent.lastSeen
-                )}
+        agent.lastHeartbeat ||
+        agent.lastSeen
+    )}
             </td>
 
             <td>
@@ -407,10 +407,10 @@ function renderDashboardAgents() {
             <div>
                 <strong>
                     ${escapeHtml(
-                        agent.computerName ||
-                        agent.hostname ||
-                        agent.agentId
-                    )}
+        agent.computerName ||
+        agent.hostname ||
+        agent.agentId
+    )}
                 </strong>
 
                 <small>
@@ -554,6 +554,12 @@ async function submitTask(event) {
         taskType: taskType,
         parameters: getTaskParameters()
     };
+
+    // const taskData = {
+    //     agentId: agentId,
+    //     taskType: taskType,
+    //     parametersJson: JSON.stringify(getTaskParameters())
+    // };
 
     try {
         if (submitButton) {
